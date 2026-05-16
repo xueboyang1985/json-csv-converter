@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Formatter & CSV Converter - Free Online Tool</title>
+<meta name="description" content="Format, validate, and convert JSON to CSV and back. 100% browser-based, no upload, no signup. Free for basic use.">
+<meta property="og:title" content="JSON Formatter & CSV Converter - Free Online Tool">
+<meta property="og:description" content="Format JSON, convert JSON to CSV and back. 100% free browser tool.">
+<meta property="og:image" content="https://xueboyang1985.github.io/json-csv-converter/og-image.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://xueboyang1985.github.io/json-csv-converter/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://xueboyang1985.github.io/json-csv-converter/">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f8fafc;color:#1a1a1a;line-height:1.6;}
+.container{max-width:900px;margin:0 auto;padding:20px;}
+.header{text-align:center;padding:40px 0 20px;}
+.header h1{font-size:28px;margin-bottom:8px;color:#1a1a1a;}
+.header p{color:#64748b;font-size:15px;}
+.card{background:white;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+textarea{width:100%;height:220px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:13px;resize:vertical;line-height:1.5;}
+textarea:focus{outline:none;border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+.btn{padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.15s;}
+.btn-primary{background:#6366f1;color:white;}
+.btn-primary:hover{background:#4f46e5;}
+.btn-secondary{background:#e2e8f0;color:#475569;}
+.btn-secondary:hover{background:#cbd5e1;}
+.btn-pro{background:#f59e0b;color:white;}
+.actions{display:flex;gap:8px;align-items:center;margin:12px 0;flex-wrap:wrap;}
+.actions label{font-size:13px;color:#64748b;}
+select{padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;background:white;cursor:pointer;}
+.footer{text-align:center;padding:40px 0;color:#94a3b8;font-size:13px;}
+.free-hint{text-align:center;padding:10px;background:#fef3c7;border-radius:8px;font-size:13px;color:#92400e;margin-top:12px;}
+.free-hint a{color:#6366f1;font-weight:600;text-decoration:none;}
+.stat{font-size:12px;color:#94a3b8;margin-top:4px;}
+.cross-card{padding:16px;border-radius:8px;font-size:13px;}
+.cross-card a{text-decoration:none;font-weight:600;}
+.cross-card p{color:#64748b;margin-bottom:4px;}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.modal{background:white;border-radius:16px;padding:28px;max-width:480px;width:90%;}
+.modal h2{font-size:22px;margin-bottom:16px;text-align:center;}
+.compare-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+.compare-table th{background:#f1f5f9;padding:10px 12px;text-align:left;border-bottom:2px solid #e2e8f0;}
+.compare-table td{padding:10px 12px;border-bottom:1px solid #f1f5f9;}
+.pro-price{text-align:center;margin:16px 0;font-size:20px;font-weight:700;}
+.pro-price span{font-size:13px;color:#64748b;font-weight:400;}
+.license-row{display:flex;gap:8px;margin-top:16px;}
+.license-row input{flex:1;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;}
+.license-row input:focus{outline:none;border-color:#6366f1;}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>JSON Formatter & CSV Converter</h1>
+<p>Format, validate, and convert between JSON and CSV — 100% in your browser</p>
+</div>
+
+<div class="card">
+<textarea id="input" placeholder="Paste your JSON or CSV here..."></textarea>
+<div class="stat" id="op-count">Operations used: 0 / 10 free</div>
+
+<div class="actions">
+<select id="input-fmt">
+<option value="json">JSON Input</option>
+<option value="csv">CSV Input</option>
+</select>
+<button class="btn btn-primary" onclick="fmtJSON()">Beautify JSON</button>
+<button class="btn btn-secondary" onclick="minJSON()">Minify JSON</button>
+<button class="btn btn-primary" onclick="toCSV()">JSON &rarr; CSV</button>
+<button class="btn btn-primary" onclick="toJSON()">CSV &rarr; JSON</button>
+<button class="btn btn-secondary" onclick="valJSON()">Validate</button>
+<button class="btn btn-secondary" onclick="clr()">Clear</button>
+</div>
+
+<textarea id="output" placeholder="Output will appear here..." readonly></textarea>
+
+<div class="btn-row">
+<button class="btn btn-secondary" onclick="cp()">Copy Output</button>
+<button class="btn btn-secondary" onclick="dl()">Download</button>
+</div>
+
+<p class="free-hint" id="free-hint">Free: 10 operations. <a href="#" id="btn-pro">Upgrade to PRO</a> for unlimited operations.</p>
+</div>
+
+<div class="cross-card" style="border-left:3px solid #ff9900;">
+<p>Also check out <strong>Kindle Highlights Exporter</strong> &mdash; export your Kindle notes to Markdown, CSV, JSON</p>
+<a href="https://xueboyang1985.github.io/kindle-exporter/" target="_blank" style="color:#ff9900;">Try Kindle Exporter &rarr;</a>
+</div>
+<div class="cross-card" style="border-left:3px solid #25d366;">
+<p>Also check out <strong>WhatsApp Chat Formatter</strong> &mdash; format WhatsApp exports to Markdown, HTML, CSV, JSON</p>
+<a href="https://xueboyang1985.github.io/whatsapp-chat-formatter/" target="_blank" style="color:#25d366;">Try WhatsApp Chat Formatter &rarr;</a>
+</div>
+<div class="cross-card" style="border-left:3px solid #6366f1;">
+<p>Also check out <strong>Subtitle Converter</strong> &mdash; convert SRT/VTT/ASS subtitles to text</p>
+<a href="https://xueboyang1985.github.io/subtitle-converter/" target="_blank" style="color:#6366f1;">Try Subtitle Converter &rarr;</a>
+</div>
+
+<div class="footer">
+<p>100% local &bull; No upload &bull; No server &bull; Your data never leaves your device</p>
+</div>
+</div>
+
+<div class="modal-overlay" id="pro-modal" style="display:none;">
+<div class="modal">
+<h2>Unlock PRO</h2>
+<table class="compare-table">
+<tr><th>Feature</th><th>Free</th><th>PRO</th></tr>
+<tr><td>Operations</td><td>10</td><td>Unlimited</td></tr>
+<tr><td>JSON &harr; CSV</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>JSON Validation</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>Batch processing</td><td>&mdash;</td><td>Yes</td></tr>
+<tr><td>Priority support</td><td>&mdash;</td><td>Yes</td></tr>
+</table>
+<p class="pro-price">$9.99 <span>one-time payment</span></p>
+<div class="license-row">
+<input type="text" id="pro-key" placeholder="Enter PRO key">
+<button class="btn btn-primary" onclick="actPRO()">Activate</button>
+</div>
+</div>
+</div>
+
+<script>
+const MAX=10, SECRET='JSON-CSV-PRO-2026'.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+let ops=parseInt(localStorage.getItem('jc_ops')||'0'),pro=localStorage.getItem('jc_pro')==='1';
+function uc(){document.getElementById('op-count').textContent='Operations used: '+ops+' / '+MAX+' free';}
+function ok(){if(pro)return 1;if(ops>=MAX){document.getElementById('pro-modal').style.display='flex';return 0}ops++;localStorage.setItem('jc_ops',ops);uc();return 1;}
+function gi(){return document.getElementById('input').value;}
+function so(v){document.getElementById('output').value=v;}
+function fmtJSON(){if(!ok())return;try{so(JSON.stringify(JSON.parse(gi()),null,2))}catch(e){so('Error: '+e.message)}}
+function minJSON(){if(!ok())return;try{so(JSON.stringify(JSON.parse(gi())))}catch(e){so('Error: '+e.message)}}
+function valJSON(){try{JSON.parse(gi());so('Valid JSON!')}catch(e){so('Invalid JSON: '+e.message)}}
+function toCSV(){if(!ok())return;try{const d=JSON.parse(gi()),a=Array.isArray(d)?d:[d];if(!a.length){so('Empty array');return}const h=[...new Set(a.flatMap(Object.keys))];so([h.join(','),...a.map(r=>h.map(k=>{const v=r[k];if(v==null)return'';const s=String(v);return s.includes(',')||s.includes('"')?'"'+s.replace(/"/g,'""')+'"':s}).join(','))].join('\n'))}catch(e){so('Error: '+e.message)}}
+function toJSON(){if(!ok())return;try{const l=gi().split('\n').filter(l=>l.trim());if(l.length<2){so('Need header + data rows');return}const h=l[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));so(JSON.stringify(l.slice(1).map(line=>{const v=[];let c='',q=0;for(const ch of line){if(ch==='"')q=!q;else if(ch===','&&!q){v.push(c.trim().replace(/^"|"$/g,''));c=''}else c+=ch}v.push(c.trim().replace(/^"|"$/g,''));const o={};h.forEach((h,i)=>{o[h]=v[i]||''});return o}),null,2))}catch(e){so('Error: '+e.message)}}
+function clr(){document.getElementById('input').value='';so('')}
+function cp(){const o=document.getElementById('output');o.select();document.execCommand('copy')}
+function dl(){const t=document.getElementById('output').value,a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='output.txt';a.click()}
+function actPRO(){const k=document.getElementById('pro-key').value.trim();if(k.split('').reduce((a,c)=>a+c.charCodeAt(0),0)===SECRET){pro=1;localStorage.setItem('jc_pro','1');document.getElementById('pro-modal').style.display='none';document.getElementById('free-hint').innerHTML='PRO activated &mdash; unlimited operations.';document.getElementById('op-count').textContent='PRO mode &mdash; unlimited'}else alert('Invalid PRO key.')}
+document.getElementById('btn-pro').onclick=()=>document.getElementById('pro-modal').style.display='flex';
+document.querySelector('.modal-overlay').onclick=function(e){if(e.target===e.currentTarget)this.style.display='none'};
+uc();if(pro){document.getElementById('free-hint').innerHTML='PRO activated &mdash; unlimited operations.';document.getElementById('op-count').textContent='PRO mode &mdash; unlimited'}
+</script>
+</body>
+</html>
