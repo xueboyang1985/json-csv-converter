@@ -133,9 +133,9 @@ select{padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13p
 </div>
 
 <script>
-const MAX=10, SECRET='JSON-CSV-PRO-2026'.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+const MAX=10;
 let ops=parseInt(localStorage.getItem('jc_ops')||'0'),pro=localStorage.getItem('jc_pro')==='1';
-function uc(){document.getElementById('op-count').textContent='Operations used: '+ops+' / '+MAX+' free';}
+function uc(){document.getElementById('op-count').textContent=pro?'PRO mode — unlimited':'Operations used: '+ops+' / '+MAX+' free';}
 function ok(){if(pro)return 1;if(ops>=MAX){document.getElementById('pro-modal').style.display='flex';return 0}ops++;localStorage.setItem('jc_ops',ops);uc();return 1;}
 function gi(){return document.getElementById('input').value;}
 function so(v){document.getElementById('output').value=v;}
@@ -147,10 +147,10 @@ function toJSON(){if(!ok())return;try{const l=gi().split('\n').filter(l=>l.trim(
 function clr(){document.getElementById('input').value='';so('')}
 function cp(){const o=document.getElementById('output');o.select();document.execCommand('copy')}
 function dl(){const t=document.getElementById('output').value,a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='output.txt';a.click()}
-function actPRO(){const k=document.getElementById('pro-key').value.trim();if(k.split('').reduce((a,c)=>a+c.charCodeAt(0),0)===SECRET){pro=1;localStorage.setItem('jc_pro','1');document.getElementById('pro-modal').style.display='none';document.getElementById('free-hint').innerHTML='PRO activated &mdash; unlimited operations.';document.getElementById('op-count').textContent='PRO mode &mdash; unlimited'}else alert('Invalid PRO key.')}
+async function actPRO(){const k=document.getElementById('pro-key').value.trim();if(!k||k.length<10){alert('Enter your Gumroad license key from your purchase receipt.');return}try{const r=await fetch('https://api.gumroad.com/v2/licenses/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_permalink:'nbseib',license_key:k})});const d=await r.json();if(d.success){pro=1;localStorage.setItem('jc_pro','1');document.getElementById('pro-modal').style.display='none';document.getElementById('free-hint').innerHTML='PRO activated — unlimited operations.';document.getElementById('op-count').textContent='PRO mode — unlimited';alert('PRO activated!')}else alert('Invalid PRO key. Check your Gumroad receipt for the correct license key.')}catch(e){alert('Could not verify license. Check internet connection and try again.')}}
 document.getElementById('btn-pro').onclick=()=>document.getElementById('pro-modal').style.display='flex';
 document.querySelector('.modal-overlay').onclick=function(e){if(e.target===e.currentTarget)this.style.display='none'};
-uc();if(pro){document.getElementById('free-hint').innerHTML='PRO activated &mdash; unlimited operations.';document.getElementById('op-count').textContent='PRO mode &mdash; unlimited'}
+if(pro){document.getElementById('free-hint').innerHTML='PRO activated — unlimited operations.';document.getElementById('op-count').textContent='PRO mode — unlimited'}uc();
 </script>
 </body>
 </html>
