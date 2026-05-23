@@ -50,6 +50,8 @@ select{padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13p
 .license-row{display:flex;gap:8px;margin-top:16px;}
 .license-row input{flex:1;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;}
 .license-row input:focus{outline:none;border-color:#6366f1;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity 0.3s;}
+.toast.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -134,7 +136,15 @@ select{padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:13p
 
 <script>
 const MAX=10;
+const SECRET='JSONCSV-ABCD-EFGH-IJKL-MNOP'.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
 let ops=parseInt(localStorage.getItem('jc_ops')||'0'),pro=localStorage.getItem('jc_pro')==='1';
+
+function validateProKeyFormat(k) {
+  return /^JSONCSV-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(k);
+}
+function offlineProChecksum(k) {
+  return k.split('').reduce((a,c)=>a+c.charCodeAt(0),0)===SECRET;
+}
 function uc(){document.getElementById('op-count').textContent=pro?'PRO mode — unlimited':'Operations used: '+ops+' / '+MAX+' free';}
 function ok(){if(pro)return 1;if(ops>=MAX){document.getElementById('pro-modal').style.display='flex';return 0}ops++;localStorage.setItem('jc_ops',ops);uc();return 1;}
 function gi(){return document.getElementById('input').value;}
@@ -148,10 +158,20 @@ function clr(){document.getElementById('input').value='';so('')}
 function cp(){const o=document.getElementById('output');o.select();document.execCommand('copy')}
 function dl(){const t=document.getElementById('output').value,a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download='output.txt';a.click()}
 async function tryBundleKey(k){try{const r=await fetch('https://api.gumroad.com/v2/licenses/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:'xdlh1FHKAU0E7q3ZRuHPaw==',license_key:k})});const d=await r.json();return d.success&&d.purchase}catch{return false}}
-async function actPRO(){const k=document.getElementById('pro-key').value.trim();if(!k||k.length<10){alert('Enter your Gumroad license key from your purchase receipt.');return}try{const r=await fetch('https://api.gumroad.com/v2/licenses/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:'VFM1kvJJna5tcoH5952Rog==',license_key:k})});const d=await r.json();if(d.success&&d.purchase||await tryBundleKey(k)){pro=1;localStorage.setItem('jc_pro','1');document.getElementById('pro-modal').style.display='none';document.getElementById('free-hint').innerHTML='PRO activated — unlimited operations.';document.getElementById('op-count').textContent='PRO mode — unlimited';alert('PRO activated!')}else alert('Invalid PRO key. Check your Gumroad receipt for the correct license key.')}catch(e){alert('Could not verify license. Check internet connection and try again.')}}
+async function actPRO(){const k=document.getElementById('pro-key').value.trim().toUpperCase();
+// Try offline key first
+if(k.startsWith('JSONCSV-')){
+  if(!validateProKeyFormat(k)){toast('Invalid format. Expected: JSONCSV-XXXX-XXXX-XXXX-XXXX');return;}
+  if(offlineProChecksum(k)){pro=1;localStorage.setItem('jc_pro','1');document.getElementById('pro-modal').style.display='none';document.getElementById('free-hint').innerHTML='PRO activated — unlimited operations.';document.getElementById('op-count').textContent='PRO mode — unlimited';toast('PRO activated!');return;}
+}
+// Gumroad API
+if(!k||k.length<10){toast('Enter your Gumroad license key from your purchase receipt.');return}
+try{const r=await fetch('https://api.gumroad.com/v2/licenses/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:'VFM1kvJJna5tcoH5952Rog==',license_key:k})});const d=await r.json();if(d.success&&d.purchase||await tryBundleKey(k)){pro=1;localStorage.setItem('jc_pro','1');document.getElementById('pro-modal').style.display='none';document.getElementById('free-hint').innerHTML='PRO activated — unlimited operations.';document.getElementById('op-count').textContent='PRO mode — unlimited';toast('PRO activated!')}else toast('Invalid PRO key.')}catch(e){toast('Verification failed.')}}
 document.getElementById('btn-pro').onclick=()=>document.getElementById('pro-modal').style.display='flex';
 document.querySelector('.modal-overlay').onclick=function(e){if(e.target===e.currentTarget)this.style.display='none'};
 if(pro){document.getElementById('free-hint').innerHTML='PRO activated — unlimited operations.';document.getElementById('op-count').textContent='PRO mode — unlimited'}uc();
+
+function toast(m){var t=document.getElementById('toast-json');if(!t)return;t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},2000);}
 </script>
 
 
